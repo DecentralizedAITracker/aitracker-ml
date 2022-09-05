@@ -1,0 +1,4 @@
+eth_abi
+pandas
+numpy
+requests
