@@ -12,6 +12,7 @@ from aitracker_ml import AITrackerML
 
 iexec_out = os.environ['IEXEC_OUT']
 iexec_in = os.environ['IEXEC_IN']
+iexec_in_filename = os.environ['IEXEC_INPUT_FILE_NAME_1']
 
 class Utils:
    
@@ -58,12 +59,11 @@ class Binance:
 if __name__ == '__main__':
     print("oracle started")
     prediction = 0  # default returned value to avoid attack on scheduler
-    
+    prediction_with_signature = 0 # default returned value to avoid attack on scheduler
     try:
         milliseconds = int(round(time.time() * 1000))
-        symbol = str(sys.argv[1])
         unix_timestamp = milliseconds
-        
+        symbol = "BTCUSDT"
         #fetch data
         seq_x = Binance.fetchCandlesticks(symbol)
 
@@ -96,21 +96,30 @@ if __name__ == '__main__':
             prediction = "DOWN"
         
         #AITracker code
-        ait_ml = AITrackerML('public_key_oracle.pem','private_key_ml.pem')
+        public_key_web_filepath = iexec_in + "/" + iexec_in_filename
+        ait_ml = AITrackerML('./src/' + 'public_key_oracle.pem','./src/' + 'private_key_ml.pem',public_key_web_filepath)
 
         #encrypt
         prediction_encrypted = ait_ml.encrypt(prediction)
+        prediction_encrypted_for_user = ait_ml.encrypt_for_user(prediction)
 
         #prepare prediction
         prediction_for_oracle = {
+            
             'prediction_encrypted' : prediction_encrypted,
-            'timestamp' : unix_timestamp
+            'timestamp' : unix_timestamp,
         }
 
-        prediction_for_oracle_string = json.dumps(prediction)
-        print(prediction_for_oracle_string)
+        prediction_for_oracle_string = json.dumps(prediction_for_oracle)
         #sign
         signature = ait_ml.sign(prediction_for_oracle_string)
+
+        prediction = {
+            'prediction_for_user' : prediction_encrypted_for_user,
+            'prediction_for_oracle' : prediction_for_oracle,
+            'signature_for_oracle' : signature
+        }
+        
         
 
     except Exception as e:
@@ -120,5 +129,6 @@ if __name__ == '__main__':
     print('prediction: {}'.format(prediction))
     with open(iexec_out + '/result.json', 'w+') as fout:
         json.dump({"prediction" : prediction}, fout)
+
     with open(iexec_out + '/computed.json', 'w+') as f:
         json.dump({"deterministic-output-path" : iexec_out + '/result.json'}, f)
