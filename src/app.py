@@ -63,7 +63,7 @@ if __name__ == '__main__':
     try:
         milliseconds = int(round(time.time() * 1000))
         unix_timestamp = milliseconds
-        symbol = "BTCUSDT"
+        symbol = "RLCUSDT"
         #fetch data
         seq_x = Binance.fetchCandlesticks(symbol)
 
