@@ -24,5 +24,4 @@ run with input_files: docker run \
     -e IEXEC_OUT=/iexec_out \
     aitracker-ml-btcusdt
 
-    test
     
