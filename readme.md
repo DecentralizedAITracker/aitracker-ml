@@ -6,7 +6,7 @@ docker build . --tag aitracker-ml-rlcusdt
 ```
 ### Tag
 ```
-docker tag aitracker-ml-xmrusdt id997/aitracker-ml-rlcusdt:1.0.0
+docker tag aitracker-ml-rlcusdt id997/aitracker-ml-rlcusdt:1.0.0
 ```
 ### Push
 ```
